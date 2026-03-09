@@ -1,0 +1,177 @@
+---
+title: "REDCap Apache & PHP Log Forensic Report"
+output:
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+# ------------------------------
+# Load packages 
+# ------------------------------
+packages <- c("data.table", "tidyverse", "lubridate", "stringr", "DT")
+missing <- packages[!sapply(packages, requireNamespace, quietly = TRUE)]
+if (length(missing)) {
+  stop("Please install required packages before knitting: ",
+       paste(missing, collapse = ", "))
+}
+lapply(packages, library, character.only = TRUE)
+
+# ------------------------------
+# Paths
+# ------------------------------
+apache_log_file <- "C:/wamp64/logs/access.log"
+php_log_file    <- "C:/wamp64/logs/php_error.log"
+
+# ------------------------------
+# Parse Apache log
+# ------------------------------
+logs <- readLines(apache_log_file, warn = FALSE)
+log <- data.table(raw = logs)
+log[, raw := str_replace_all(raw, '^"|"$', '')]
+log[, raw := str_trim(raw)]
+log <- log[str_detect(raw, "^::1|^\\d{1,3}(\\.\\d{1,3}){3}")]
+
+split_cols <- tstrsplit(log$raw, " ", fixed = TRUE)
+log[, ip := split_cols[[1]]]
+log[, dash1 := split_cols[[2]]]
+log[, dash2 := split_cols[[3]]]
+log[, time_part := split_cols[[4]]]
+log[, request_status := paste(split_cols[5:length(split_cols)], collapse = " ")]
+
+log[, time := str_extract(raw, "\\d{2}/[A-Za-z]{3}/\\d{4}:\\d{2}:\\d{2}:\\d{2} [-+]\\d{4}")]
+log[, time := as.POSIXct(time, format="%d/%b/%Y:%H:%M:%S %z", tz="UTC")]
+
+log[, request := str_extract(raw, '"(.*?)"')]
+log[, request := str_replace_all(request, '"', '')]
+log[, status := as.integer(str_extract(raw, '\\s(\\d{3})\\s'))]
+
+log[, c("method","uri","protocol") := {
+  tmp <- tstrsplit(request, " ", fixed = TRUE)
+  list(
+    if(length(tmp) >= 1) tmp[[1]] else NA_character_,
+    if(length(tmp) >= 2) tmp[[2]] else NA_character_,
+    if(length(tmp) >= 3) tmp[[3]] else NA_character_
+  )
+}]
+log[, bytes := NA_integer_]
+log <- log[, .(ip, time, method, uri, protocol, status, bytes, raw)]
+
+# ------------------------------
+# Forensic Queries
+# ------------------------------
+install_hits <- log[uri %like% "install\\.php",
+                    .(count=.N, first=min(time), last=max(time)),
+                    by=.(ip, uri)][order(-count)]
+
+client_errors <- log[status >= 400 & status < 500, .N, by=ip][order(-N)]
+server_errors <- log[status >= 500, .N, by=ip][order(-N)]
+unusual_methods <- log[!method %in% c("GET","POST"), .N, by=.(ip, method)][order(-N)]
+
+suspicious_patterns <- "(?i)union|select|sleep\\(|benchmark\\(|\\.\\./|cmd=|exec="
+suspicious_uris <- log[str_detect(uri, suspicious_patterns), .N, by=.(ip, uri)][order(-N)]
+
+log[, minute := lubridate::floor_date(time, unit = "minute")]
+high_request_rate <- log[, .N, by=.(ip, minute)][N > 50][order(-N)]
+
+
+# ------------------------------
+# Parse PHP log (defensive)
+# ------------------------------
+if (!file.exists(php_log_file)) {
+  warning("PHP log file not found: ", php_log_file)
+  php_error_counts <- data.table()
+  php_top_messages <- data.table()
+} else {
+  php_logs <- readLines(php_log_file, warn = FALSE, encoding = "UTF-8")
+
+  # Pattern: [datetime] PHP <Type>: <Message>
+  # Examples matched:
+  # [28-Feb-2026 14:12:03 UTC] PHP Warning: Something...
+  # [28-Feb-2026 14:12:03] PHP Fatal error: Something...
+  php_pattern <- '^\\[([^\\]]+)\\]\\s+PHP\\s+([^:]+):\\s+(.*)$'
+
+  m <- stringr::str_match(php_logs, php_pattern)  # matrix
+  # m[,1] = full match, m[,2] = datetime, m[,3] = type, m[,4] = message
+
+  if (is.null(m) || ncol(m) < 4) {
+    # No usable matches; create empty outputs and warn
+    warning(
+      "PHP log pattern did not match any lines. ",
+      "First few lines:\n",
+      paste(utils::head(php_logs, 5), collapse = "\n")
+    )
+    php_error_counts <- data.table()
+    php_top_messages <- data.table()
+  } else {
+    php_df <- as.data.frame(m, stringsAsFactors = FALSE)
+    colnames(php_df) <- c("full", "datetime", "type", "message")
+    php_df <- php_df[, c("datetime", "type", "message")]
+
+    # Parse datetime with or without timezone token
+    php_df$datetime <- lubridate::parse_date_time(
+      php_df$datetime,
+      orders = c("d-b-Y H:M:S", "d-b-Y H:M:S z"),
+      tz = "UTC"
+    )
+
+    # Keep rows with non-missing structure
+    php_df <- php_df[!is.na(php_df$type) & !is.na(php_df$message), , drop = FALSE]
+
+    if (nrow(php_df)) {
+      php_error_counts <- dplyr::count(php_df, type, sort = TRUE)
+      php_top_messages <- dplyr::count(php_df, message, sort = TRUE) %>% head(5)
+    } else {
+      php_error_counts <- data.table()
+      php_top_messages <- data.table()
+    }
+  }
+}
+```
+
+## Apache Log (Latest 20 Entries)
+```{r}
+datatable(log[order(-time)][1:20])
+```
+
+## Install Script Hits
+```{r}
+datatable(install_hits)
+```
+
+## Client Errors (4xx)
+```{r}
+datatable(client_errors)
+```
+
+## Server Errors (5xx)
+```{r}
+datatable(server_errors)
+```
+
+## Unusual HTTP Methods
+```{r}
+datatable(unusual_methods)
+```
+
+## Suspicious URIs
+```{r}
+datatable(suspicious_uris)
+```
+
+## High Request Rate
+```{r}
+datatable(high_request_rate)
+```
+
+## PHP Error Counts
+```{r}
+datatable(php_error_counts)
+```
+
+## Top PHP Error Messages
+```{r}
+datatable(php_top_messages)
+```
