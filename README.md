@@ -13,13 +13,7 @@ Most institutions face the same challenges:
 <li>Compliance teams want reporting, but REDCap doesn’t provide trend analysis</li>
 <li>IT teams want to understand behavior, but the logs don’t tell a story</li>
 
-ForeTELL was created to bridge this gap.
-
-It transforms REDCap’s raw logs into meaningful insights — highlighting unusual behavior, surfacing anomalies, and helping administrators understand what’s happening inside their systems.
-
-ForeTELL Lite extends this mission by bringing a streamlined version of those capabilities directly into REDCap, making security awareness accessible even in environments without analytics infrastructure.
-
-Together, they help institutions move from reactive to proactive security.
+ForeTELL was created to bridge this gap.  It transforms REDCap’s raw logs into meaningful insights — highlighting unusual behavior, surfacing anomalies, and helping administrators understand what’s happening inside their systems.  ForeTELL Lite extends this mission by bringing a streamlined version of those capabilities directly into REDCap, making security awareness accessible even in environments without analytics infrastructure.  Together, they help institutions move from reactive to proactive security.
 
 ## Project Overview
 ### ForeTELL (Full Application — R/Shiny)
