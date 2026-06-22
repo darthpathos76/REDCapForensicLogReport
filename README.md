@@ -11,7 +11,7 @@ Most institutions face the same challenges:
 <ul><li>Security teams want visibility, but REDCap logs are not easily searchable</li>
 <li>REDCap admins want early warning signs, but there’s no built‑in anomaly detection</li>
 <li>Compliance teams want reporting, but REDCap doesn’t provide trend analysis</li>
-<li>IT teams want to understand behavior, but the logs don’t tell a story</li>
+<li>IT teams want to understand behavior, but the logs don’t tell a story</li></ul>
 
 ForeTELL was created to bridge this gap.  It transforms REDCap’s raw logs into meaningful insights — highlighting unusual behavior, surfacing anomalies, and helping administrators understand what’s happening inside their systems.  ForeTELL Lite extends this mission by bringing a streamlined version of those capabilities directly into REDCap, making security awareness accessible even in environments without analytics infrastructure.  Together, they help institutions move from reactive to proactive security.
 
