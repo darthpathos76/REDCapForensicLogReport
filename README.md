@@ -1,20 +1,17 @@
-ForeTELL & ForeTELL Lite — Forensic Log Analysis for REDCap
+# ForeTELL & ForeTELL Lite — Forensic Log Analysis for REDCap
 ForeTELL and ForeTELL Lite are companion tools designed to help REDCap administrators detect suspicious activity, understand user behavior, and strengthen operational security. Both tools analyze REDCap’s native logs, but each serves a different purpose and audience.
 
 Together, they provide a complete, scalable, institution‑friendly security analytics ecosystem.
 
-Why ForeTELL Exists
+## Why ForeTELL Exists
 REDCap’s native logging system is incredibly detailed — every action, every login, every project change, every data interaction is recorded. But the logs were never designed for analysis. They’re raw, dense, and difficult to interpret without significant effort.
 
 Most institutions face the same challenges:
 
-Security teams want visibility, but REDCap logs are not easily searchable
-
-REDCap admins want early warning signs, but there’s no built‑in anomaly detection
-
-Compliance teams want reporting, but REDCap doesn’t provide trend analysis
-
-IT teams want to understand behavior, but the logs don’t tell a story
+<ul><li>Security teams want visibility, but REDCap logs are not easily searchable</li>
+<li>REDCap admins want early warning signs, but there’s no built‑in anomaly detection</li>
+<li>Compliance teams want reporting, but REDCap doesn’t provide trend analysis</li>
+<li>IT teams want to understand behavior, but the logs don’t tell a story</li>
 
 ForeTELL was created to bridge this gap.
 
@@ -24,58 +21,44 @@ ForeTELL Lite extends this mission by bringing a streamlined version of those ca
 
 Together, they help institutions move from reactive to proactive security.
 
-Project Overview
-ForeTELL (Full Application — R/Shiny)
+## Project Overview
+### ForeTELL (Full Application — R/Shiny)
 A full‑featured, interactive, high‑power analytics environment built in R/Shiny.
 ForeTELL is designed for institutions that want:
 
-Deep forensic analysis
+<ul><li>Deep forensic analysis</li>
+<li>Multi‑dimensional filtering</li>
+<li>Interactive dashboards</li>
+<li>Statistical anomaly detection</li>
+<li>Institutional‑level reporting</li>
+<li>Long‑term trend analysis</li>
 
-Multi‑dimensional filtering
+It is the powerhouse of the ForeTELL ecosystem — ideal for central IT, security teams, and environments with small REDCap Teams.
 
-Interactive dashboards
-
-Statistical anomaly detection
-
-Institutional‑level reporting
-
-Long‑term trend analysis
-
-It is the powerhouse of the ForeTELL ecosystem — ideal for central IT, security teams, and environments with multiple REDCap instances.
-
-ForeTELL Lite (REDCap External Module)
+### ForeTELL Lite (REDCap External Module)
 A lightweight, fast, easy‑to‑deploy module that runs inside REDCap.
 
 ForeTELL Lite is designed for:
 
-Quick installation
-
-Zero external dependencies
-
-Built‑in dashboards
-
-Daily or on‑demand alert digests
-
-Real‑time anomaly detection
-
-Minimal maintenance
-
+<ul><li>Quick installation</li>
+<li>Zero external dependencies</li>
+<li>Built‑in dashboards</li>
+<li>Daily or on‑demand alert digests</li>
+<li>Real‑time anomaly detection</li>
+<li>Minimal maintenance</li></ul>
+  
 It provides immediate value to REDCap administrators without requiring R/Shiny infrastructure.
 
-Shared Security Principles
+## Shared Security Principles
 Both ForeTELL and ForeTELL Lite follow the same core philosophy:
 
-No external APIs
+<ul><li>No external APIs</li>
+<li>No outbound network calls</li>
+<li>No cloud dependencies</li>
+<li>All processing stays inside your institution</li>
+<li>Built entirely on REDCap’s native logs</li>
+<li>Your data never leaves your environment.</li></ul>
 
-No outbound network calls
-
-No cloud dependencies
-
-All processing stays inside your institution
-
-Built entirely on REDCap’s native logs
-
-Your data never leaves your environment.
 
 Architecture Overview
 ForeTELL (R/Shiny)
