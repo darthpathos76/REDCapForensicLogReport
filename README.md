@@ -66,12 +66,16 @@ Both ForeTELL and ForeTELL Lite follow the same core philosophy:
 <li>Efficient log windowing</li>
 <li>Zero external dependencies</li></ul>
 
-### Screenshots (Coming Soon)
-This section will include:
+### Screenshots
 ForeTELL Lite dashboard overview
-Sparkline visualization
+<img width="940" height="952" alt="image" src="https://github.com/user-attachments/assets/6460140e-7ff7-4abb-a29c-50c8fc44a82f" />
+
 Trend analysis panels
+<img width="990" height="656" alt="image" src="https://github.com/user-attachments/assets/e38f1236-5838-4510-8611-36edb2ec3ed0" />
+
 High‑priority event summaries
+<img width="710" height="156" alt="image" src="https://github.com/user-attachments/assets/c1d295f0-1b48-4878-ad52-19b34477d3b1" />
+
 
 ForeTELL (R/Shiny) interactive dashboards
 Multi‑dimensional filtering views
@@ -79,149 +83,101 @@ Time‑series anomaly detection plots
 Screenshots will be added once the UI is finalized and approved for public sharing.
 
 ### How ForeTELL and ForeTELL Lite Integrate
-ForeTELL and ForeTELL Lite are designed to work independently — but they shine brightest when used together.
+ForeTELL and ForeTELL Lite are designed to work independently — but they work the best when used together.
 
 #### ForeTELL Lite → ForeTELL
 ForeTELL Lite acts as the “front line” inside REDCap:
-Detects anomalies in real time
-Sends digest alerts
-Provides quick dashboards for admins
-Highlights events worth deeper investigation
+<ul><li>Detects anomalies in real time</li>
+<li>Sends digest alerts</li>
+<li>Provides quick dashboards for admins</li>
+<li>Highlights events worth deeper investigation</li></ul>
 
 #### ForeTELL (the full R/Shiny app) then becomes the investigation environment:
-Drill deeper into suspicious patterns
-Compare across users, projects, or time windows
-Explore multi‑dimensional relationships
-Build institutional‑level reports
+<ul><li>Drill deeper into suspicious patterns</li>
+<li>Compare across users, projects, or time windows</li>
+<li>Explore multi‑dimensional relationships</li>
+<li>Build institutional‑level reports</li></ul>
 
 #### ForeTELL → ForeTELL Lite
 ForeTELL can also inform ForeTELL Lite:
+<ul><li>Identify new anomaly categories</li>
+<li>Tune thresholds</li>
+<li>Validate safe lists</li>
+<li>Improve off‑hours boundaries</li>
+<li>Suggest new alert rules</li>
 
-Identify new anomaly categories
-
-Tune thresholds
-
-Validate safe lists
-
-Improve off‑hours boundaries
-
-Suggest new alert rules
-
-Together
+#### Together...
 They form a complete security analytics pipeline:
-
-ForeTELL Lite catches the signal
-
-ForeTELL explains the signal
-
-Administrators respond with clarity and confidence
-
+<ul><li>ForeTELL Lite catches the signal</li>
+<li>ForeTELL explains the signal</li>
+<li>Administrators respond with clarity and confidence</li>
 This combined workflow gives institutions both breadth (Lite) and depth (Full ForeTELL).
 
-Installation
-ForeTELL (R/Shiny)
-Clone the repository
+### Installation
+#### ForeTELL (R/Shiny)
+<ol><li>Clone the repository</li>
+<li>Install required R packages</li>
+<li>Configure database connection</li>
+<li>Deploy to Shiny Server or RStudio Connect</li>
 
-Install required R packages
+#### ForeTELL Lite (External Module)
+<ol><li>Download the latest release</li>
+<li>Extract into <code><redcap-root>/modules/foretell_lite_vX.Y.Z/</code></li>
+<li>Enable in Control Center</li>
+<li>Configure system settings</li>
+<li>Open the dashboard page</li>
 
-Configure database connection
+### Configuration
+#### ForeTELL
+<ul><li>Database connection</li>
+<li>Log retention windows</li>
+<li>Statistical model parameters</li>
+<li>UI customization</li></ul>
 
-Deploy to Shiny Server or RStudio Connect
+#### ForeTELL Lite
+<ul><li>Safe IP ranges</li>
+<li>Safe users</li>
+<li>Safe projects</li>
+<li>Off‑hours boundaries</li>
+<li>Digest frequency</li>
+<li>Alert thresholds</li>
 
-ForeTELL Lite (External Module)
-Download the latest release
-
-Extract into:
-
-Code
-<redcap-root>/modules/foretell_lite_vX.Y.Z/
-Enable in Control Center
-
-Configure system settings
-
-Open the dashboard page
-
-Configuration
-ForeTELL
-Database connection
-
-Log retention windows
-
-Statistical model parameters
-
-UI customization
-
-ForeTELL Lite
-Safe IP ranges
-
-Safe users
-
-Safe projects
-
-Off‑hours boundaries
-
-Digest frequency
-
-Alert thresholds
-
-Future Enhancements & Ideas
+### Future Enhancements & Ideas
 The ForeTELL ecosystem is actively evolving. Planned and potential enhancements include:
 
-ForeTELL Lite
-Project‑level dashboards
+#### ForeTELL Lite
+<ul><li>Project‑level dashboards</li>
+<li>User‑level behavioral profiles</li>
+<li>Configurable anomaly scoring</li>
+<li>Integration with REDCap’s Alerts & Notifications</li>
+<li>Optional project‑specific safe lists</li>
+<li>More granular digest scheduling</li>
+<li>Exportable CSV/JSON summaries</li></ul>
 
-User‑level behavioral profiles
-
-Configurable anomaly scoring
-
-Integration with REDCap’s Alerts & Notifications
-
-Optional project‑specific safe lists
-
-More granular digest scheduling
-
-Exportable CSV/JSON summaries
-
-ForeTELL (R/Shiny)
-Machine‑learning‑based anomaly detection
-
-Cross‑instance analytics (multi‑REDCap environments)
-
-Customizable dashboards per institution
-
-Role‑based access control
-
-Automated weekly/monthly security reports
-
-Integration with SIEM systems (Splunk, Sentinel, etc.)
-
-Long‑term trend forecasting
+#### ForeTELL (R/Shiny)
+<ul><li>Cross‑instance analytics (multi‑REDCap environments)</li>
+<li>Customizable dashboards per institution</li>
+<li>Role‑based access control</li>
+<li>Automated weekly/monthly security reports</li>
+<li>Integration with other dashboarding / monitoring systems (Grafana, etc.)</li>
+<li>Long‑term trend forecasting</li></ul>
 
 Shared Enhancements
-Unified configuration schema
+<ul><li>Unified configuration schema</li>
+<li>Shared safe lists between Lite and Full</li>
+<li>Common anomaly taxonomy</li>
+<li>Optional API bridge for deeper integration</li>
+<li>Institutional “security posture” scoring</li>
 
-Shared safe lists between Lite and Full
-
-Common anomaly taxonomy
-
-Optional API bridge for deeper integration
-
-Institutional “security posture” scoring
-
-Development Notes
+### Development Notes
 ForeTELL Lite is fully PHPStan‑validated (Level 6)
-
 No deprecated REDCap APIs
-
 No dynamic includes
-
 REDCap 17+ compatible
-
 ForeTELL uses modular R/Shiny best practices
 
-Version History
+### Version History
 ForeTELL: See CHANGELOG.md
-
 ForeTELL Lite: See config.json
 
 License
