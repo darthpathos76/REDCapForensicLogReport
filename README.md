@@ -104,13 +104,13 @@ ForeTELL can also inform ForeTELL Lite:
 <li>Tune thresholds</li>
 <li>Validate safe lists</li>
 <li>Improve off‑hours boundaries</li>
-<li>Suggest new alert rules</li>
+<li>Suggest new alert rules</li></ul>
 
 #### Together...
 They form a complete security analytics pipeline:
 <ul><li>ForeTELL Lite catches the signal</li>
 <li>ForeTELL explains the signal</li>
-<li>Administrators respond with clarity and confidence</li>
+<li>Administrators respond with clarity and confidence</li></ul>
 This combined workflow gives institutions both breadth (Lite) and depth (Full ForeTELL).
 
 ### Installation
@@ -118,14 +118,14 @@ This combined workflow gives institutions both breadth (Lite) and depth (Full Fo
 <ol><li>Clone the repository</li>
 <li>Install required R packages</li>
 <li>Configure database connection</li>
-<li>Deploy to Shiny Server or RStudio Connect</li>
+<li>Deploy to Shiny Server or RStudio Connect</li></ol>
 
 #### ForeTELL Lite (External Module)
 <ol><li>Download the latest release</li>
 <li>Extract into <code><redcap-root>/modules/foretell_lite_vX.Y.Z/</code></li>
 <li>Enable in Control Center</li>
 <li>Configure system settings</li>
-<li>Open the dashboard page</li>
+<li>Open the dashboard page</li></ol>
 
 ### Configuration
 #### ForeTELL
@@ -140,7 +140,7 @@ This combined workflow gives institutions both breadth (Lite) and depth (Full Fo
 <li>Safe projects</li>
 <li>Off‑hours boundaries</li>
 <li>Digest frequency</li>
-<li>Alert thresholds</li>
+<li>Alert thresholds</li></ul>
 
 ### Future Enhancements & Ideas
 The ForeTELL ecosystem is actively evolving. Planned and potential enhancements include:
@@ -167,7 +167,7 @@ Shared Enhancements
 <li>Shared safe lists between Lite and Full</li>
 <li>Common anomaly taxonomy</li>
 <li>Optional API bridge for deeper integration</li>
-<li>Institutional “security posture” scoring</li>
+<li>Institutional “security posture” scoring</li></ul>
 
 ### Development Notes
 ForeTELL Lite is fully PHPStan‑validated (Level 6)
