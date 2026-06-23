@@ -162,7 +162,7 @@ The ForeTELL ecosystem is actively evolving. Planned and potential enhancements 
 <li>Integration with other dashboarding / monitoring systems (Grafana, etc.)</li>
 <li>Long‑term trend forecasting</li></ul>
 
-Shared Enhancements
+### Shared Enhancements
 <ul><li>Unified configuration schema</li>
 <li>Shared safe lists between Lite and Full</li>
 <li>Common anomaly taxonomy</li>
@@ -170,15 +170,15 @@ Shared Enhancements
 <li>Institutional “security posture” scoring</li></ul>
 
 ### Development Notes
-ForeTELL Lite is fully PHPStan‑validated (Level 6)
-No deprecated REDCap APIs
-No dynamic includes
-REDCap 17+ compatible
-ForeTELL uses modular R/Shiny best practices
+<ul><li>ForeTELL Lite is fully PHPStan‑validated (Level 6)</li>
+<li>No deprecated REDCap APIs</li>
+<li>No dynamic includes</li>
+<li>REDCap 17+ compatible (tested on both Windows and Linux-based REDCap)</li>
+<li>ForeTELL uses modular R/Shiny best practices</li></ul>
 
 ### Version History
 ForeTELL: See CHANGELOG.md
 ForeTELL Lite: See config.json
 
-License
+## License
 Both ForeTELL and ForeTELL Lite are released under the MIT License.
