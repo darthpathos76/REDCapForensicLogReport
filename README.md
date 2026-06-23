@@ -67,13 +67,13 @@ Both ForeTELL and ForeTELL Lite follow the same core philosophy:
 <li>Zero external dependencies</li></ul>
 
 ### Screenshots
-ForeTELL Lite dashboard overview
+ForeTELL Lite dashboard overview<br>
 <img width="940" height="952" alt="image" src="https://github.com/user-attachments/assets/6460140e-7ff7-4abb-a29c-50c8fc44a82f" />
 
-Trend analysis panels
+Trend analysis panels<br>
 <img width="990" height="656" alt="image" src="https://github.com/user-attachments/assets/e38f1236-5838-4510-8611-36edb2ec3ed0" />
 
-High‑priority event summaries
+High‑priority event summaries<br>
 <img width="710" height="156" alt="image" src="https://github.com/user-attachments/assets/c1d295f0-1b48-4878-ad52-19b34477d3b1" />
 
 
