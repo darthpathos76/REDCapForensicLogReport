@@ -24,7 +24,7 @@ A full‑featured, interactive, high‑power analytics environment built in R/Sh
 <li>Interactive dashboards</li>
 <li>Statistical anomaly detection</li>
 <li>Institutional‑level reporting</li>
-<li>Long‑term trend analysis</li>
+<li>Long‑term trend analysis</li></ul>
 
 It is the powerhouse of the ForeTELL ecosystem — ideal for central IT, security teams, and environments with small REDCap Teams.
 
