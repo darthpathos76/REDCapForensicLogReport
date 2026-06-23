@@ -17,8 +17,7 @@ ForeTELL was created to bridge this gap.  It transforms REDCap’s raw logs into
 
 ## Project Overview
 ### ForeTELL (Full Application — R/Shiny)
-A full‑featured, interactive, high‑power analytics environment built in R/Shiny.
-ForeTELL is designed for institutions that want:
+A full‑featured, interactive, high‑power analytics environment built in R/Shiny.  ForeTELL is designed for institutions that want:
 
 <ul><li>Deep forensic analysis</li>
 <li>Multi‑dimensional filtering</li>
@@ -30,9 +29,7 @@ ForeTELL is designed for institutions that want:
 It is the powerhouse of the ForeTELL ecosystem — ideal for central IT, security teams, and environments with small REDCap Teams.
 
 ### ForeTELL Lite (REDCap External Module)
-A lightweight, fast, easy‑to‑deploy module that runs inside REDCap.
-
-ForeTELL Lite is designed for:
+A lightweight, fast, easy‑to‑deploy module that runs inside REDCap.  ForeTELL Lite is designed for:
 
 <ul><li>Quick installation</li>
 <li>Zero external dependencies</li>
@@ -53,76 +50,51 @@ Both ForeTELL and ForeTELL Lite follow the same core philosophy:
 <li>Built entirely on REDCap’s native logs</li>
 <li>Your data never leaves your environment.</li></ul>
 
+### Architecture Overview
+#### ForeTELL (R/Shiny)
+##### Modular R components
+<ul><li>Reactive dashboards</li>
+<li>Statistical anomaly detection</li>
+<li>Multi‑project analytics</li>
+<li>Institutional‑level reporting</li></ul>
 
-Architecture Overview
-ForeTELL (R/Shiny)
-Modular R components
+##### ForeTELL Lite (REDCap EM)
+<ul><li>Trait‑based PHP architecture</li>
+<li>REDCap‑native settings</li>
+<li>Digest email engine</li>
+<li>Sparkline visualizations</li>
+<li>Efficient log windowing</li>
+<li>Zero external dependencies</li></ul>
 
-Reactive dashboards
-
-Statistical anomaly detection
-
-Multi‑project analytics
-
-Institutional‑level reporting
-
-ForeTELL Lite (REDCap EM)
-Trait‑based PHP architecture
-
-REDCap‑native settings
-
-Digest email engine
-
-Sparkline visualizations
-
-Efficient log windowing
-
-Zero external dependencies
-
-Screenshots (Coming Soon)
+### Screenshots (Coming Soon)
 This section will include:
-
 ForeTELL Lite dashboard overview
-
-Sparkline visualizations
-
+Sparkline visualization
 Trend analysis panels
-
 High‑priority event summaries
 
 ForeTELL (R/Shiny) interactive dashboards
-
 Multi‑dimensional filtering views
-
 Time‑series anomaly detection plots
-
 Screenshots will be added once the UI is finalized and approved for public sharing.
 
-How ForeTELL and ForeTELL Lite Integrate
+### How ForeTELL and ForeTELL Lite Integrate
 ForeTELL and ForeTELL Lite are designed to work independently — but they shine brightest when used together.
 
-ForeTELL Lite → ForeTELL
+#### ForeTELL Lite → ForeTELL
 ForeTELL Lite acts as the “front line” inside REDCap:
-
 Detects anomalies in real time
-
 Sends digest alerts
-
 Provides quick dashboards for admins
-
 Highlights events worth deeper investigation
 
-ForeTELL (the full R/Shiny app) then becomes the investigation environment:
-
+#### ForeTELL (the full R/Shiny app) then becomes the investigation environment:
 Drill deeper into suspicious patterns
-
 Compare across users, projects, or time windows
-
 Explore multi‑dimensional relationships
-
 Build institutional‑level reports
 
-ForeTELL → ForeTELL Lite
+#### ForeTELL → ForeTELL Lite
 ForeTELL can also inform ForeTELL Lite:
 
 Identify new anomaly categories
