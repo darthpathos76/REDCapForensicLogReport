@@ -76,13 +76,13 @@ Trend analysis panels<br>
 High‑priority event summaries<br>
 <img width="710" height="156" alt="image" src="https://github.com/user-attachments/assets/c1d295f0-1b48-4878-ad52-19b34477d3b1" />
 
-ForeTELL (R/Shiny) interactive dashboards
+ForeTELL (R/Shiny) interactive dashboards<br>
 <img width="940" height="471" alt="image" src="https://github.com/user-attachments/assets/19d1ba11-976a-4a37-abe2-31c35c3c7ddc" />
 
-Multi‑dimensional filtering views
+Multi‑dimensional filtering views<br>
 <img width="592" height="473" alt="image" src="https://github.com/user-attachments/assets/da8dde2a-ce52-43c1-9966-84c379609f14" />
 
-Time‑series anomaly detection plots
+Time‑series anomaly detection plots<br>
 <img width="575" height="331" alt="image" src="https://github.com/user-attachments/assets/8ecb433e-c13a-40ca-8504-875c8c2be7d2" />
 
 ### How ForeTELL and ForeTELL Lite Integrate
