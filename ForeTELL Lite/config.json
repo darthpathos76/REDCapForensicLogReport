@@ -1,0 +1,192 @@
+{
+  "name": "ForeTELL Lite",
+  "namespace": "ForetellLite",
+  "description": "A lightweight REDCap security dashboard using only REDCap-based logs.",
+  "version": "1.0.4",
+  "framework-version": 14,
+  "allowsUserQueries": true,
+  "authors": [
+    {
+      "name": "Chris Battiston",
+      "email": "chris.battiston@wchospital.ca",
+      "institution": "Women's College Hospital"
+    }
+  ],
+  "links": {
+    "control-center": [
+      {
+        "name": "ForeTELL Lite Dashboard",
+        "url": "pages/index.php",
+        "icon": "fas fa-lightbulb"
+      }
+    ]
+  },
+  "crons": [
+    {
+      "cron_name": "foretell_lite_alert",
+      "cron_description": "ForeTELL Lite hourly high-priority alert digest",
+      "method": "sendAlertDigest",
+      "cron_frequency": "600",
+      "cron_max_run_time": "60"
+    }
+  ],
+  "system-settings": [
+    {
+      "key": "alert_email_enabled",
+      "name": "Enable high-priority alert emails",
+      "type": "checkbox"
+    },
+    {
+      "key": "alert_email",
+      "name": "Alert recipient email address",
+      "type": "text"
+    },
+    {
+      "key": "alert_min_severity",
+      "name": "Minimum severity to trigger email",
+      "type": "dropdown",
+      "choices": [
+        {
+          "value": "low",
+          "name": "Low"
+        },
+        {
+          "value": "medium",
+          "name": "Medium"
+        },
+        {
+          "value": "high",
+          "name": "High"
+        }
+      ],
+      "default": "high"
+    },
+    {
+      "key": "alert_cooldown_minutes",
+      "name": "Minimum minutes between alerts",
+      "type": "number"
+    },
+    {
+      "key": "trigger_test_alert",
+      "name": "Send a test alert on next cron run (auto-clears after sending)",
+      "type": "checkbox"
+    },
+    {
+      "key": "safe_ip_ranges",
+      "name": "Trusted IP ranges (comma-separated LIKE patterns e.g. 172.%, 3.98.92.%)",
+      "type": "textarea"
+    },
+    {
+      "key": "safe_users",
+      "name": "Trusted users (comma-separated usernames to exclude from anomaly detection)",
+      "type": "textarea"
+    },
+    {
+      "key": "safe_projects",
+      "name": "Projects to exclude from anomaly detection (comma-separated project IDs)",
+      "type": "textarea"
+    },
+    {
+      "key": "off_hours_start",
+      "name": "Off-hours start time (HH:MM, default 19:00)",
+      "type": "text"
+    },
+    {
+      "key": "off_hours_end",
+      "name": "Off-hours end time (HH:MM, default 07:00)",
+      "type": "text"
+    },
+    {
+      "key": "threshold_suspicious_logins",
+      "name": "Suspicious login threshold (attempts per user+IP+day, default 6)",
+      "type": "number"
+    },
+    {
+      "key": "threshold_export_alert",
+      "name": "Export alert threshold (events/day)",
+      "type": "text",
+      "default": "20"
+    },
+    {
+      "key": "threshold_ip_events",
+      "name": "IP anomaly event threshold (total LOGIN_FAIL events per IP, default 10)",
+      "type": "number"
+    },
+    {
+      "key": "threshold_ip_users",
+      "name": "IP anomaly distinct user threshold (distinct users per IP, default 3)",
+      "type": "number"
+    },
+    {
+      "key": "threshold_user_events",
+      "name": "User anomaly event threshold (total LOGIN_FAIL events per user, default 20)",
+      "type": "number"
+    },
+    {
+      "key": "threshold_user_ips",
+      "name": "User anomaly distinct IP threshold (distinct IPs per user, default 5)",
+      "type": "number"
+    },
+    {
+      "key": "window_days",
+      "name": "Analysis window in days (default 7)",
+      "type": "number"
+    },
+    {
+      "key": "table_limit",
+      "name": "Maximum rows per table (default 200)",
+      "type": "number"
+    },
+    {
+      "key": "enable_suspicious_logins",
+      "name": "Enable Suspicious Logins tab",
+      "type": "checkbox"
+    },
+    {
+      "key": "enable_ip_anomalies",
+      "name": "Enable IP Anomalies tab",
+      "type": "checkbox"
+    },
+    {
+      "key": "enable_user_anomalies",
+      "name": "Enable User Activity tab",
+      "type": "checkbox"
+    },
+    {
+      "key": "enable_system_events",
+      "name": "Enable System Events tab",
+      "type": "checkbox"
+    },
+    {
+      "key": "enable_off_hours",
+      "name": "Enable Off-Hours Activity tab",
+      "type": "checkbox"
+    },
+    {
+      "key": "enable_today_priorities",
+      "name": "Enable Today's Priorities tab",
+      "type": "checkbox",
+      "default": true
+    },
+    {
+      "key": "min-signal-severity",
+      "name": "<b>Minimum Signal Severity to Log/Display</b><br><span style='color:#777;font-weight:normal;'>Select the minimum threshold for anomalies to be tracked on the dashboard. Selecting 'Medium' will completely drop and ignore all Low signals.</span>",
+      "type": "dropdown",
+      "choices": [
+        {
+          "value": "low",
+          "name": "Low (Show everything)"
+        },
+        {
+          "value": "medium",
+          "name": "Medium & High Only"
+        },
+        {
+          "value": "high",
+          "name": "High Only"
+        }
+      ],
+      "default": "medium"
+    }
+  ]
+}
