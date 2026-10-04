@@ -2,6 +2,8 @@
 
 **A lightweight REDCap security monitoring dashboard built as an External Module.**
 
+For information on ForeTELL (the full R application), including a comoarison of the EM and the App, please see the README in the ForeTELL Folder.  
+
 ForeTELL Lite surfaces authentication anomalies, IP-level threats, user activity patterns, and off-hours access by querying `redcap_log_view` directly. All data stays within the REDCap database and is visible only to system administrators. No external tools, data exports, or infrastructure beyond REDCap itself are required.
 
 ---
