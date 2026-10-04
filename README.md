@@ -28,7 +28,7 @@ ForeTELL Lite surfaces authentication anomalies, IP-level threats, user activity
 
 | Requirement | Detail |
 |---|---|
-| REDCap version | 17.x (tested on 17.0.3 and 17.0.8) |
+| REDCap version | 17.x (tested on 17.0.3, 17.0.8, 17.5.1, 17.5.2 and 17.5.3) |
 | Framework version | 14 |
 | PHP | 8.x |
 | Database | MariaDB with `redcap_log_view` accessible |
