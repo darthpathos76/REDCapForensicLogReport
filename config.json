@@ -87,17 +87,17 @@
       "type": "textarea"
     },
     {
-      "key": "off_hours_start",
-      "name": "Off-hours start time (HH:MM, default 19:00)",
-      "type": "text"
-    },
-    {
       "key": "off_hours_end",
-      "name": "Off-hours end time (HH:MM, default 07:00)",
+      "name": "Core hours start (HH:MM, default 07:00)",
       "type": "text"
     },
     {
-      "key": "threshold_suspicious_logins",
+      "key": "off_hours_start",
+      "name": "Core hours end (HH:MM, default 19:00)",
+      "type": "text"
+    },
+    {
+      "key": "threshold_suspicious_logins", 
       "name": "Suspicious login threshold (attempts per user+IP+day, default 6)",
       "type": "number"
     },

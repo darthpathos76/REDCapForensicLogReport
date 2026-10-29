@@ -111,11 +111,26 @@ trait TablesTrait
         $endTime   = substr($end, 0, 5);
 
         $out = [];
+
         foreach ($rows as $r) {
-            $time = substr((string)$r['ts'], 11, 5);
-            if ($this->isWithinCoreHours($time, $startTime, $endTime)) {
+            $timestamp = (string)($r['ts'] ?? '');
+
+            if ($timestamp === '') {
                 continue;
             }
+
+            $time = substr($timestamp, 11, 5);
+
+            // ISO-8601 weekday number: 1 = Monday, 7 = Sunday.
+            $dayOfWeek = (int)date('N', strtotime($timestamp));
+            $isWeekend = ($dayOfWeek >= 6);
+
+            // Weekend activity is always considered off-hours.
+            // On weekdays, use the configured core-hours window.
+            if (!$isWeekend && $this->isWithinCoreHours($time, $startTime, $endTime)) {
+                continue;
+            }
+
             $out[] = $r;
         }
 
