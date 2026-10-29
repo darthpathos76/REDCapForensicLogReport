@@ -19,9 +19,7 @@ $today  = date('Y-m-d');
 </div>
 
 <p style="font-size:12px; color:#888; margin-bottom:16px;">
-    Aggregates urgent security anomalies from today's log activity:
-    privilege page probing, brute-force authentication bursts, high-severity system events,
-    and high-volume data exports. Aligned with ForeTELL (R Shiny) alert logic.
+Aggregates urgent security anomalies from today's log activity: sensitive privilege-page activity, brute-force authentication bursts, high-severity system events, and high-volume data exports.
 </p>
 
 <?php if (empty($alerts)): ?>

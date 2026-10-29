@@ -149,8 +149,53 @@ trait AnalyticsTrait
     }
 
     /**
+     * Retrieve today's potentially sensitive page activity.
+     *
+    * This query is kept separate from the main cached security-event
+    * window so ordinary page traffic does not consume that dataset.
+    *
+    * @return array<int, array<string, mixed>>
+    */
+private function getTodaySensitivePageEvents(): array
+{
+    $todayStart = date('Y-m-d 00:00:00');
+
+    $sql = "
+        SELECT ts, user, ip, event, page, project_id, event_id, miscellaneous
+        FROM redcap_log_view
+        WHERE ts >= ?
+          AND (
+               LOWER(page) LIKE ?
+            OR LOWER(page) LIKE ?
+            OR LOWER(page) LIKE ?
+            OR LOWER(page) LIKE ?
+          )
+        ORDER BY ts DESC
+        LIMIT 1000
+    ";
+
+    $params = [
+        $todayStart,
+        '%controlcenter%',
+        '%userrights%',
+        '%viewauth%',
+        '%add_users%',
+    ];
+
+    $q = $this->query($sql, $params);
+
+    $rows = [];
+
+    while ($row = $q->fetch_assoc()) {
+        $rows[] = $row;
+    }
+
+    return $rows;
+}
+    /**
      * Today's high-priority incidents, aligned with ForeTELL R Shiny alert logic.
-     * Covers: honey-pot probing, brute-force bursts, privilege events, mass exports.
+     * Covers: sensitive privilege-page activity, brute-force bursts,
+     * privilege events, and high-volume exports.
      * @return array<int, array<string, string>>
      */
     public function getTodayHighPriorities(): array
@@ -166,6 +211,30 @@ trait AnalyticsTrait
         $privilegeEvents = ['USER_RIGHTS', 'API_TOKEN_CREATE', 'USER_CREATE'];
         $exportEvents    = ['DATA_EXPORT', 'DOC_UPLOAD', 'DOC_DELETE'];
 
+        $sensitivePageRows = $this->getTodaySensitivePageEvents();
+
+    foreach ($sensitivePageRows as $r) {
+        $user = (string)($r['user'] ?? '');
+        $ip   = (string)($r['ip'] ?? '');
+        $page = (string)($r['page'] ?? '');
+
+                if ($user !== '') {
+                $alerts[] = [
+                    'severity'    => 'MEDIUM',
+                    'incident'    => 'Sensitive Privilege Page Activity',
+                    'user'        => $user,
+                    'ip'          => $ip,
+                    'ts'          => (string)($r['ts'] ?? ''),
+                    'diagnostics' => 'Sensitive page activity requiring review: '
+                        . htmlspecialchars(
+                            $page,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ),
+                ];
+            }
+}
+
         foreach ($rows as $r) {
             if (substr((string)$r['ts'], 0, 10) !== $today) {
                 continue;
@@ -174,27 +243,6 @@ trait AnalyticsTrait
             $user  = (string)$r['user'];
             $ip    = (string)$r['ip'];
             $event = (string)$r['event'];
-            $page  = strtolower((string)($r['page'] ?? ''));
-
-            // --- Honey-pot / privilege page probing by non-admin ---
-            if (
-                (strpos($page, 'controlcenter') !== false
-                 || strpos($page, 'userrights') !== false
-                 || strpos($page, 'viewauth') !== false
-                 || strpos($page, 'add_users') !== false)
-                && stripos($user, 'admin') === false
-                && stripos($user, 'root') === false
-                && $user !== ''
-            ) {
-                $alerts[] = [
-                    'severity'     => 'CRITICAL',
-                    'incident'     => 'Privilege Page Probing',
-                    'user'         => $user,
-                    'ip'           => $ip,
-                    'ts'           => (string)$r['ts'],
-                    'diagnostics'  => 'Attempted access to: ' . htmlspecialchars(basename((string)($r['page'] ?? '')), ENT_QUOTES, 'UTF-8'),
-                ];
-            }
 
             // --- Brute-force burst aggregation ---
             if ($event === 'LOGIN_FAIL') {
