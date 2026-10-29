@@ -7,21 +7,15 @@
 $module = $GLOBALS['module'];
 
 $days          = $module->getWindowDays();
-[$start, $end] = $module->getOffHoursBounds();
 $limit         = $module->getTableLimit(500);
 
-$start_hhmm = substr($start, 0, 5);
-$end_hhmm   = substr($end,   0, 5);
-$allRows = $module->getWindowedLogRows();
+$allRows = $module->getOffHoursEvents();
 
 $by_user = [];
 $by_hour = array_fill(0, 24, 0);
 
 foreach ($allRows as $r) {
     if (empty($r['user'])) continue;
-
-    $time = substr($r['ts'], 11, 5);
-    if ($module->isWithinCoreHours($time, $start_hhmm, $end_hhmm)) continue;
 
     // Track hourly metrics
     $h = (int)substr($r['ts'], 11, 2);
@@ -67,7 +61,7 @@ $by_user = array_slice($by_user, 0, $limit);
 <?php if (array_sum($by_hour) > 0): ?>
 <div class="card style-distribution" style="margin-bottom: 30px; border: 1px solid #dee2e6;">
     <div class="card-header" style="background: #f8f9fa; font-weight: 600; font-size: 13px;">
-        <i class="fas fa-chart-bar" style="margin-right: 5px; color: #8e44ad;"></i> Event Threat Distribution by Hour of Day
+        <i class="fas fa-chart-bar" style="margin-right: 5px; color: #8e44ad;"></i> Off-Hours Event Distribution by Hour of Day
     </div>
     <div class="card-body" style="padding: 15px;">
         <?php 
