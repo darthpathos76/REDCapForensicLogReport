@@ -100,23 +100,6 @@ trait LogWindowTrait
                  || strpos($page, 'data_export') !== false);
         });
 
-        /* ============================================================
-         * THIRD PASS: SEVERITY FILTER
-         * ============================================================ */
-        $min = $this->getMinSeverity();
-        $high   = ['USER_RIGHTS', 'API_TOKEN_CREATE', 'USER_CREATE'];
-        $medium = ['DATA_EXPORT', 'DOC_UPLOAD', 'DOC_DELETE', 'LOGIN_FAIL'];
-
-        $rows = array_filter($rows, function(array $r) use ($min, $high, $medium): bool {
-            $sev = in_array($r['event'], $high, true) ? 'high'
-                 : (in_array($r['event'], $medium, true) ? 'medium' : 'low');
-
-            if ($min === 'medium' && $sev === 'low') return false;
-            if ($min === 'high'   && $sev !== 'high') return false;
-
-            return true;
-        });
-
         $this->cachedLogRows = array_values($rows);
         return $this->cachedLogRows;
     }
