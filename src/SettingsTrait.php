@@ -129,6 +129,50 @@ trait SettingsTrait
         return $min;
     }
 
+        /**
+         * Convert a severity label to a comparable numeric rank.
+         *
+         * @param string $severity
+         * @return int
+         */
+    public function getSeverityRank(string $severity): int
+    {
+        switch (strtolower(trim($severity))) {
+            case 'critical':
+                return 4;
+
+            case 'high':
+                return 3;
+
+            case 'medium':
+                return 2;
+
+            case 'low':
+                return 1;
+
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * Determine whether a classified finding meets the configured
+     * minimum dashboard severity.
+     *
+     * This is presentation-only. It must not be used to remove
+     * events from the underlying security-analysis dataset.
+     *
+     * @param string $severity
+     * @return bool
+     */
+    public function meetsDashboardSeverity(string $severity): bool
+    {
+        $minimum = $this->getMinSeverity();
+
+        return $this->getSeverityRank($severity)
+            >= $this->getSeverityRank($minimum);
+    }
+
     /**
      * Evaluates whether a given timestamp time falls inside core operational shifts.
      * @param string $time

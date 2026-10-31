@@ -283,6 +283,16 @@ private function getTodaySensitivePageEvents(): array
             }
         }
 
+        $alerts = array_values(
+    array_filter(
+        $alerts,
+        function(array $alert): bool {
+            return $this->meetsDashboardSeverity(
+                (string)($alert['severity'] ?? '')
+            );
+        }
+    )
+);
         // Sort: CRITICAL first, then by timestamp descending
         usort($alerts, function(array $a, array $b): int {
             $sevOrder = ['CRITICAL' => 0, 'HIGH' => 1, 'MEDIUM' => 2];
