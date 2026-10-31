@@ -105,8 +105,8 @@ trait TablesTrait
     {
         $rows          = $this->getWindowedLogRows();
         [$start, $end] = $this->getOffHoursBounds();
-        $limit         = $this->getTableLimit(500);
 
+        
         $startTime = substr($start, 0, 5);
         $endTime   = substr($end, 0, 5);
 
@@ -131,9 +131,8 @@ trait TablesTrait
                 continue;
             }
 
-            $out[] = $r;
-        }
-
-        return array_slice($out, 0, $limit);
+           $out[] = $r;
+           }
+            return $out;
     }
 }
