@@ -17,35 +17,13 @@ trait AnalyticsTrait
      * Calculates absolute IP anomaly vectors metrics.
      * @return int
      */
-    public function getIPAnomaliesCount(): int
-    {
-        $rows = $this->getWindowedLogRows();
-        $eventsThresh = $this->getThreshold('threshold_ip_events', 10);
-        $usersThresh  = $this->getThreshold('threshold_ip_users', 3);
-
-        $byIp = [];
-        foreach ($rows as $r) {
-            if ($r['event'] !== 'LOGIN_FAIL') continue;
-
-            $ip = (string)$r['ip'];
-            if ($ip === '') continue;
-
-            if (!isset($byIp[$ip])) {
-                $byIp[$ip] = ['events' => 0, 'users' => []];
-            }
-
-            $byIp[$ip]['events']++;
-            $byIp[$ip]['users'][(string)$r['user']] = true;
-        }
-
-        $count = 0;
-        foreach ($byIp as $ip => $info) {
-            if ($info['events'] >= $eventsThresh || count($info['users']) >= $usersThresh) {
-                $count++;
-            }
-        }
-        return $count;
-    }
+ /**
+ * Return the number of active IP anomaly records.
+ */
+public function getIPAnomaliesCount(): int
+{
+    return count($this->getIPAnomalies());
+}
 
     /**
      * Return counts of active unique anomaly records.

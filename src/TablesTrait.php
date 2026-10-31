@@ -44,58 +44,103 @@ trait TablesTrait
         return array_slice($filtered, 0, $limit);
     }
 
-    /**
-     * Gathers structural IP address anomaly trends.
-     * @return array<int, array<string, mixed>>
-     */
-    public function getIPAnomalies(): array
-    {
-        $rows         = $this->getWindowedLogRows();
-        $eventsThresh = $this->getThreshold('threshold_ip_events', 10);
-        $usersThresh  = $this->getThreshold('threshold_ip_users', 3);
-        $limit        = $this->getTableLimit(200);
+/**
+ * Gather IP-level failed-login anomaly trends.
+ *
+ * Keeps invalid/unknown username attempts as security evidence
+ * without counting the REDCap sentinel value as a real user.
+ *
+ * @return array<int, array<string, mixed>>
+ */
+public function getIPAnomalies(): array
+{
+    $rows         = $this->getWindowedLogRows();
+    $eventsThresh = $this->getThreshold('threshold_ip_events', 10);
+    $usersThresh  = $this->getThreshold('threshold_ip_users', 3);
+    $limit        = $this->getTableLimit(200);
 
-        $byIp = [];
+    $byIp = [];
 
-        foreach ($rows as $r) {
-            if ($r['event'] !== 'LOGIN_FAIL') continue;
-
-            $ip = (string)$r['ip'];
-            if ($ip === '') continue;
-
-            if (!isset($byIp[$ip])) {
-                $byIp[$ip] = [
-                    'ip'           => $ip,
-                    'total_events' => 0,
-                    'users'        => [],
-                    'first_seen'   => $r['ts'],
-                    'last_seen'    => $r['ts'],
-                ];
-            }
-
-            $byIp[$ip]['total_events']++;
-            $byIp[$ip]['users'][(string)$r['user']] = true;
-
-            if ($r['ts'] < $byIp[$ip]['first_seen']) $byIp[$ip]['first_seen'] = $r['ts'];
-            if ($r['ts'] > $byIp[$ip]['last_seen'])  $byIp[$ip]['last_seen']  = $r['ts'];
+    foreach ($rows as $r) {
+        if (($r['event'] ?? '') !== 'LOGIN_FAIL') {
+            continue;
         }
 
-        $filtered = [];
-        foreach ($byIp as $ip => $info) {
-            $distinctUsers = count($info['users']);
-            if ($info['total_events'] >= $eventsThresh || $distinctUsers >= $usersThresh) {
-                $info['distinct_users'] = $distinctUsers;
-                unset($info['users']);
-                $filtered[] = $info;
-            }
+        $ip = (string)($r['ip'] ?? '');
+
+        if ($ip === '') {
+            continue;
         }
 
-        usort($filtered, function (array $a, array $b): int {
-            return (int)$b['total_events'] <=> (int)$a['total_events'];
-        });
+        $user = (string)($r['user'] ?? '');
+        $ts   = (string)($r['ts'] ?? '');
 
-        return array_slice($filtered, 0, $limit);
+        if (!isset($byIp[$ip])) {
+            $byIp[$ip] = [
+                'ip'                       => $ip,
+                'total_events'             => 0,
+                'known_users'              => [],
+                'invalid_username_attempts'=> 0,
+                'first_seen'               => $ts,
+                'last_seen'                => $ts,
+            ];
+        }
+
+        $byIp[$ip]['total_events']++;
+
+        if ($user === '[not_valid_username]' || $user === '') {
+            $byIp[$ip]['invalid_username_attempts']++;
+        } else {
+            $byIp[$ip]['known_users'][$user] = true;
+        }
+
+        if (
+            $ts !== ''
+            && (
+                $byIp[$ip]['first_seen'] === ''
+                || $ts < $byIp[$ip]['first_seen']
+            )
+        ) {
+            $byIp[$ip]['first_seen'] = $ts;
+        }
+
+        if (
+            $ts !== ''
+            && (
+                $byIp[$ip]['last_seen'] === ''
+                || $ts > $byIp[$ip]['last_seen']
+            )
+        ) {
+            $byIp[$ip]['last_seen'] = $ts;
+        }
     }
+
+    $filtered = [];
+
+    foreach ($byIp as $info) {
+        $distinctKnownUsers = count($info['known_users']);
+
+        if (
+            $info['total_events'] >= $eventsThresh
+            || $distinctKnownUsers >= $usersThresh
+        ) {
+            $info['distinct_known_users'] = $distinctKnownUsers;
+            unset($info['known_users']);
+
+            $filtered[] = $info;
+        }
+    }
+
+    usort(
+        $filtered,
+        function(array $a, array $b): int {
+            return (int)$b['total_events']
+                <=> (int)$a['total_events'];
+        }
+    );
+
+    return array_slice($filtered, 0, $limit);
+}
 
     /**
      * Ledger collection detailing off-hours raw matrix events.
