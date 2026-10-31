@@ -9,6 +9,54 @@ namespace ForetellLite;
 $module = $GLOBALS['module'];
 $base   = $module->getUrl('pages/index.php');
 
+// -------------------------------------------------------------------------
+// Test-email action
+// -------------------------------------------------------------------------
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+if (empty($_SESSION['foretell_test_email_token'])) {
+    $_SESSION['foretell_test_email_token'] = bin2hex(random_bytes(32));
+}
+
+$testEmailMessage = null;
+$testEmailSuccess = false;
+
+if (
+    ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+    && isset($_POST['foretell_action'])
+    && $_POST['foretell_action'] === 'send_test_email'
+) {
+    $submittedToken = (string)($_POST['foretell_token'] ?? '');
+    $expectedToken  = (string)$_SESSION['foretell_test_email_token'];
+
+    if (
+        $submittedToken === ''
+        || !hash_equals($expectedToken, $submittedToken)
+    ) {
+        $testEmailMessage = 'The test-email request could not be validated.';
+    } else {
+        $recipient = trim(
+            (string)$module->getSystemSetting('alert_email')
+        );
+
+        if ($recipient === '') {
+            $testEmailMessage =
+                'Configure an alert recipient email address before sending a test.';
+        } else {
+            $testEmailSuccess = $module->sendTestAlert();
+
+            $testEmailMessage = $testEmailSuccess
+                ? 'Test email sent successfully to ' . $recipient . '.'
+                : 'The test email could not be sent. Check the PHP/REDCap email logs for details.';
+        }
+    }
+
+    // Rotate after every attempt so a submitted token cannot be reused.
+    $_SESSION['foretell_test_email_token'] = bin2hex(random_bytes(32));
+}
+
 require_once APP_PATH_DOCROOT . 'ControlCenter/header.php';
 
 $enabled = [
@@ -99,6 +147,19 @@ if (!function_exists(__NAMESPACE__ . '\\ftl_svg_sparkline')) {
 </div>
 
 <div class="container-fluid" style="padding-top:10px; max-width:1400px;">
+    <?php if ($testEmailMessage !== null): ?>
+    <div class="alert <?= $testEmailSuccess ? 'alert-success' : 'alert-danger' ?>"
+         role="alert"
+         style="font-size:13px;">
+        <i class="fas <?= $testEmailSuccess ? 'fa-check-circle' : 'fa-exclamation-circle' ?>"
+           style="margin-right:6px;"></i>
+        <?= htmlspecialchars(
+            $testEmailMessage,
+            ENT_QUOTES,
+            'UTF-8'
+        ) ?>
+    </div>
+<?php endif; ?>
     <div class="ftl-grid-row" style="margin-bottom:20px;">
         <?php foreach ($tabs as $key => $meta): ?>
         <div class="ftl-grid-col">

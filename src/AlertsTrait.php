@@ -4,8 +4,10 @@ namespace ForetellLite;
 trait AlertsTrait
 {
     /**
-     * Main runtime alert digest engine. Safe for standard CRON execution blocks.
-     * @return void
+     * Main runtime alert digest engine.
+     *
+     * Applies alert enablement, cooldown, severity, deduplication,
+     * and qualifying-finding requirements before attempting delivery.
      */
     public function sendAlertDigest(): void
     {
@@ -14,107 +16,266 @@ trait AlertsTrait
                 return;
             }
 
-            $recipient = trim((string)$this->getSystemSetting('alert_email'));
+            $recipient = trim(
+                (string)$this->getSystemSetting('alert_email')
+            );
+
             if ($recipient === '') {
                 return;
             }
 
-            // Enforce cooling periods
-            $cooldown = (int)$this->getSystemSetting('alert_cooldown_minutes');
+            // Enforce the configured cooldown for production alerts.
+            $cooldown = (int)$this->getSystemSetting(
+                'alert_cooldown_minutes'
+            );
+
             if ($cooldown <= 0) {
                 $cooldown = 60;
             }
 
-            $lastSent = (int)$this->getSystemSetting('last_alert_sent_ts');
-            if (time() - $lastSent < ($cooldown * 60)) {
+            $lastSent = (int)$this->getSystemSetting(
+                'last_alert_sent_ts'
+            );
+
+            if (
+                $lastSent > 0
+                && time() - $lastSent < ($cooldown * 60)
+            ) {
                 return;
             }
 
-            $alertSev = (string)$this->getSystemSetting('alert_min_severity');
-            if (!in_array($alertSev, ['low', 'medium', 'high'], true)) {
-                $alertSev = 'high';
+            $alertSeverity = (string)$this->getSystemSetting(
+                'alert_min_severity'
+            );
+
+            if (
+                !in_array(
+                    $alertSeverity,
+                    ['low', 'medium', 'high'],
+                    true
+                )
+            ) {
+                $alertSeverity = 'high';
             }
-            $alerts = $this->collectHighPriorityAlerts($alertSev);
+
+            $alerts = $this->collectHighPriorityAlerts(
+                $alertSeverity
+            );
 
             if (empty($alerts)) {
                 return;
             }
 
-            // Filter out anything we've already alerted on. Each alert carries a
-            // 'key' fingerprint (set in collectHighPriorityAlerts) that uniquely
-            // identifies the underlying event/group at its current count. If the
-            // same fingerprint was sent before, it's a stale repeat from the
-            // rolling analysis window, not a new issue, so it's dropped here.
-            $seen = $this->getSeenAlertKeys();
+            /*
+             * Remove alerts that were already delivered. Each alert
+             * carries a fingerprint that identifies the underlying
+             * event or group at its current count.
+             */
+            $seen      = $this->getSeenAlertKeys();
             $newAlerts = [];
-            $newKeys = [];
+            $newKeys   = [];
+            $sentAt    = time();
 
-            foreach ($alerts as $a) {
-                $key = (string)($a['key'] ?? '');
+            foreach ($alerts as $alert) {
+                $key = (string)($alert['key'] ?? '');
+
                 if ($key === '' || isset($seen[$key])) {
                     continue;
                 }
-                $newAlerts[] = $a;
-                $newKeys[$key] = time();
+
+                $newAlerts[]   = $alert;
+                $newKeys[$key] = $sentAt;
             }
 
             if (empty($newAlerts)) {
-                // Nothing new since the last alert. Don't send, and don't touch
-                // last_alert_sent_ts so a genuinely new event isn't held up
-                // waiting for a fresh cooldown window.
                 return;
             }
 
-            $subject = "[ForeTELL Lite] Security Alert Digest";
-            $body = "The following high-priority security events were detected:\n\n";
+            $subject = '[ForeTELL Lite] Security Alert Digest';
 
-            foreach ($newAlerts as $a) {
-                $body .= strtoupper((string)$a['severity']) . ": " . (string)$a['message'] . "\n";
+            $body = "The following security events were detected:\n\n";
+
+            foreach ($newAlerts as $alert) {
+                $severity = strtoupper(
+                    (string)($alert['severity'] ?? 'UNKNOWN')
+                );
+
+                $message = (string)(
+                    $alert['message'] ?? 'No description available'
+                );
+
+                $body .= $severity . ': ' . $message . "\n";
             }
 
-            $body .= "\nTimestamp: " . date('Y-m-d H:i:s');
+            $body .= "\nGenerated: "
+                . date('Y-m-d H:i:s');
 
-            if (class_exists('\\REDCap')) {
-                $from = (string)($GLOBALS['project_contact_email'] ?? '');
-                if ($from === '') {
-                    $from = 'no-reply@redcap.local';
-                }
-                \REDCap::email($recipient, $from, $subject, nl2br($body));
+            $sent = $this->sendForetellEmail(
+                $recipient,
+                $subject,
+                $body
+            );
+
+            /*
+             * Only update cooldown and deduplication state after
+             * successful delivery. Failed delivery remains eligible
+             * for a future retry.
+             */
+            if (!$sent) {
+                error_log(
+                    '[ForeTELL Lite] Alert digest email was not sent.'
+                );
+                return;
             }
 
-            $this->setSystemSetting('last_alert_sent_ts', time());
-            $this->saveSeenAlertKeys(array_merge($seen, $newKeys));
+            $this->setSystemSetting(
+                'last_alert_sent_ts',
+                $sentAt
+            );
+
+            $this->saveSeenAlertKeys(
+                array_merge($seen, $newKeys)
+            );
 
         } catch (\Throwable $e) {
-            error_log('[ForeTELL Lite] sendAlertDigest error: ' . $e->getMessage());
+            error_log(
+                '[ForeTELL Lite] sendAlertDigest error: '
+                . $e->getMessage()
+            );
         }
     }
 
     /**
-     * Load the registry of alert fingerprints already emailed, pruning anything
-     * older than the analysis window so fingerprints can naturally re-fire once
-     * they've rolled out of the lookback period.
-     * @return array<string, int> map of fingerprint => unix timestamp first sent
+     * Send a delivery test without requiring alerts, cooldown expiry,
+     * enabled production alerts, or an unused alert fingerprint.
+     *
+     * @return bool true when REDCap reports successful delivery
+     */
+    public function sendTestAlert(): bool
+    {
+        try {
+            $recipient = trim(
+                (string)$this->getSystemSetting('alert_email')
+            );
+
+            if ($recipient === '') {
+                error_log(
+                    '[ForeTELL Lite] Test alert not sent: '
+                    . 'recipient email is not configured.'
+                );
+                return false;
+            }
+
+            $subject = '[ForeTELL Lite] Test Alert';
+
+            $body = implode("\n", [
+                'This is a ForeTELL Lite test alert.',
+                '',
+                'Email delivery is configured and operational.',
+                '',
+                'Generated: ' . date('Y-m-d H:i:s'),
+            ]);
+
+            $sent = $this->sendForetellEmail(
+                $recipient,
+                $subject,
+                $body
+            );
+
+            if (!$sent) {
+                error_log(
+                    '[ForeTELL Lite] Test alert email was not sent.'
+                );
+            }
+
+            return $sent;
+
+        } catch (\Throwable $e) {
+            error_log(
+                '[ForeTELL Lite] sendTestAlert error: '
+                . $e->getMessage()
+            );
+
+            return false;
+        }
+    }
+
+    /**
+     * Send a ForeTELL email through REDCap.
+     *
+     * Keeping delivery in one method ensures production and test
+     * messages use the same recipient-independent transport logic.
+     */
+    private function sendForetellEmail(
+        string $recipient,
+        string $subject,
+        string $body
+    ): bool {
+        if (!class_exists('\\REDCap')) {
+            error_log(
+                '[ForeTELL Lite] Email not sent: '
+                . 'REDCap email service is unavailable.'
+            );
+            return false;
+        }
+
+        $from = trim(
+            (string)($GLOBALS['project_contact_email'] ?? '')
+        );
+
+        if ($from === '') {
+            $from = 'no-reply@redcap.local';
+        }
+
+        $result = \REDCap::email(
+            $recipient,
+            $from,
+            $subject,
+            nl2br(
+                htmlspecialchars(
+                    $body,
+                    ENT_QUOTES,
+                    'UTF-8'
+                )
+            )
+        );
+
+        return $result === true;
+    }
+
+    /**
+     * Load alert fingerprints already delivered and remove entries
+     * older than the current analysis window.
+     *
+     * @return array<string, int>
      */
     private function getSeenAlertKeys(): array
     {
-        $raw = (string)$this->getSystemSetting('alert_seen_keys');
+        $raw = (string)$this->getSystemSetting(
+            'alert_seen_keys'
+        );
+
         if ($raw === '') {
             return [];
         }
 
         $decoded = json_decode($raw, true);
+
         if (!is_array($decoded)) {
             return [];
         }
 
-        $days = method_exists($this, 'getWindowDays') ? $this->getWindowDays() : 7;
+        $days = method_exists($this, 'getWindowDays')
+            ? $this->getWindowDays()
+            : 7;
+
         $cutoff = time() - (($days + 1) * 86400);
 
         $out = [];
-        foreach ($decoded as $key => $ts) {
-            if ((int)$ts >= $cutoff) {
-                $out[(string)$key] = (int)$ts;
+
+        foreach ($decoded as $key => $timestamp) {
+            if ((int)$timestamp >= $cutoff) {
+                $out[(string)$key] = (int)$timestamp;
             }
         }
 
@@ -122,19 +283,35 @@ trait AlertsTrait
     }
 
     /**
-     * Persist the seen-alert registry, capped to a sane size as a safety net
-     * against unbounded growth.
+     * Persist the delivered-alert fingerprint registry.
+     *
      * @param array<string, int> $keys
-     * @return void
      */
     private function saveSeenAlertKeys(array $keys): void
     {
         if (count($keys) > 500) {
-            // Keep the most recent 500 by timestamp
             arsort($keys);
-            $keys = array_slice($keys, 0, 500, true);
+            $keys = array_slice(
+                $keys,
+                0,
+                500,
+                true
+            );
         }
 
-        $this->setSystemSetting('alert_seen_keys', json_encode($keys));
+        $encoded = json_encode($keys);
+
+        if ($encoded === false) {
+            error_log(
+                '[ForeTELL Lite] Alert fingerprints '
+                . 'could not be encoded.'
+            );
+            return;
+        }
+
+        $this->setSystemSetting(
+            'alert_seen_keys',
+            $encoded
+        );
     }
 }

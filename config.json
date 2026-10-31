@@ -66,11 +66,7 @@
       "name": "Minimum minutes between alerts",
       "type": "number"
     },
-    {
-      "key": "trigger_test_alert",
-      "name": "Send a test alert on next cron run (auto-clears after sending)",
-      "type": "checkbox"
-    },
+
     {
       "key": "safe_ip_ranges",
       "name": "Trusted IP ranges (comma-separated LIKE patterns e.g. 172.%, 3.98.92.%)",
