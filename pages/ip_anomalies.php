@@ -1,17 +1,6 @@
 <?php
 $module = $GLOBALS['module'];
-
 $rows = $module->getIPAnomalies();
-
-$thr_events = $module->getThreshold(
-    'threshold_ip_events',
-    10
-);
-
-$thr_users = $module->getThreshold(
-    'threshold_ip_users',
-    3
-);
 ?>
 
 <div class="ftl-section-header">
@@ -60,27 +49,35 @@ $thr_users = $module->getThreshold(
                 $row['total_events'] ?? 0
             );
 
-            if ($distinctKnownUsers >= $thr_users) {
-                $badge =
-                    '<span class="ftl-badge ftl-badge-high" '
-                    . 'style="background:#c0392b;color:#fff;'
-                    . 'padding:2px 6px;border-radius:3px;">'
-                    . 'High</span>';
+   $severity = strtolower(
+    (string)($row['severity'] ?? 'low')
+);
 
-            } elseif ($totalEvents >= $thr_events) {
-                $badge =
-                    '<span class="ftl-badge ftl-badge-medium" '
-                    . 'style="background:#e67e22;color:#fff;'
-                    . 'padding:2px 6px;border-radius:3px;">'
-                    . 'Medium</span>';
+switch ($severity) {
+    case 'high':
+        $badge =
+            '<span class="ftl-badge ftl-badge-high" '
+            . 'style="background:#c0392b;color:#fff;'
+            . 'padding:2px 6px;border-radius:3px;">'
+            . 'High</span>';
+        break;
 
-            } else {
-                $badge =
-                    '<span class="ftl-badge ftl-badge-info" '
-                    . 'style="background:#2980b9;color:#fff;'
-                    . 'padding:2px 6px;border-radius:3px;">'
-                    . 'Info</span>';
-            }
+    case 'medium':
+        $badge =
+            '<span class="ftl-badge ftl-badge-medium" '
+            . 'style="background:#e67e22;color:#fff;'
+            . 'padding:2px 6px;border-radius:3px;">'
+            . 'Medium</span>';
+        break;
+
+    default:
+        $badge =
+            '<span class="ftl-badge ftl-badge-info" '
+            . 'style="background:#2980b9;color:#fff;'
+            . 'padding:2px 6px;border-radius:3px;">'
+            . 'Low</span>';
+        break;
+}
             ?>
 
             <tr>

@@ -117,20 +117,34 @@ public function getIPAnomalies(): array
 
     $filtered = [];
 
-    foreach ($byIp as $info) {
-        $distinctKnownUsers = count($info['known_users']);
+foreach ($byIp as $info) {
+    $distinctKnownUsers = count($info['known_users']);
 
-        if (
-            $info['total_events'] >= $eventsThresh
-            || $distinctKnownUsers >= $usersThresh
-        ) {
-            $info['distinct_known_users'] = $distinctKnownUsers;
-            unset($info['known_users']);
-
-            $filtered[] = $info;
-        }
+    if (
+        $info['total_events'] < $eventsThresh
+        && $distinctKnownUsers < $usersThresh
+    ) {
+        continue;
     }
 
+    $info['distinct_known_users'] = $distinctKnownUsers;
+
+    if ($distinctKnownUsers >= $usersThresh) {
+        $info['severity'] = 'high';
+    } elseif ($info['total_events'] >= $eventsThresh) {
+        $info['severity'] = 'medium';
+    } else {
+        $info['severity'] = 'low';
+    }
+
+    unset($info['known_users']);
+
+    if (!$this->meetsDashboardSeverity($info['severity'])) {
+        continue;
+    }
+
+    $filtered[] = $info;
+}
     usort(
         $filtered,
         function(array $a, array $b): int {
